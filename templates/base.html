@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Naming Convention{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: "#6D28D9",
+                            600: "#5B21B6",
+                            700: "#4C1D95"
+                        }
+                    },
+                    boxShadow: {
+                        soft: "0 10px 30px -10px rgba(91, 33, 182, 0.35)"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100 text-slate-800">
+    <div class="min-h-screen">
+        <nav class="sticky top-0 z-30 border-b border-violet-100/60 bg-white/80 backdrop-blur-md">
+            <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+                <a href="{% url 'home' %}" class="group inline-flex items-center gap-2 transition">
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-indigo-500 text-sm font-bold text-white shadow-soft transition-transform duration-200 group-hover:scale-105">NC</span>
+                    <span class="text-sm font-semibold tracking-wide text-slate-700 sm:text-base">Naming Convention</span>
+                </a>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    {% if user.is_authenticated %}
+                        <span class="hidden rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 sm:inline">{{ user.username }}</span>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="rounded-xl border border-violet-200 bg-white px-3 py-2 text-xs font-semibold text-violet-700 transition duration-200 hover:border-violet-300 hover:bg-violet-50 sm:px-4 sm:text-sm">
+                                Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 sm:text-sm">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <main class="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Naming Convention{% endblock %}
+
+{% block content %}
+<section class="flex min-h-[70vh] items-center justify-center">
+    <div class="w-full max-w-md">
+        <div class="rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700 p-0.5 shadow-soft">
+            <div class="rounded-[22px] bg-white/95 p-6 sm:p-8">
+                <div class="mb-6 text-center">
+                    <h1 class="text-2xl font-bold text-slate-900">Welcome Back</h1>
+                    <p class="mt-1 text-sm text-slate-500">Sign in to continue to your dashboard</p>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+
+                    <div>
+                        <label for="{{ form.username.id_for_label }}" class="mb-1 block text-sm font-medium text-slate-700">
+                            {{ form.username.label }}
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <p class="mt-1 text-xs text-rose-600">{{ form.username.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.password.id_for_label }}" class="mb-1 block text-sm font-medium text-slate-700">
+                            {{ form.password.label }}
+                        </label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <p class="mt-1 text-xs text-rose-600">{{ form.password.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-violet-300">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

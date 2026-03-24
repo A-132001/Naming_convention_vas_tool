@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+env/
+venv/
+ENV/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+# *.sqlite3
+# db.sqlite3
+media/
+staticfiles/
+*.py[cod]
+# *.mo
+
+# Django migrations
+*/migrations/*.py
+*/migrations/*.pyc
+!*/migrations/__init__.py
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.*
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Pipenv / poetry
+Pipfile.lock
+poetry.lock
+
+.claude/
