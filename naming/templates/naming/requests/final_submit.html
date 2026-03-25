@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Request {{ naming_request.pk }} - Submit{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl">
+  <div class="mb-6">
+    {% include "naming/requests/_stepper.html" with naming_request=naming_request current_step=4 %}
+  </div>
+
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-6 shadow-sm backdrop-blur">
+    <h1 class="text-2xl font-bold text-slate-900">Final Submission</h1>
+    <p class="mt-2 text-sm text-slate-600">This will send the full request to admin for review.</p>
+
+    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+      <div class="rounded-xl border border-violet-100 bg-white/70 p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-violet-700">Servers</div>
+        <div class="mt-1 text-sm font-bold text-slate-900">{{ naming_request.server_allocations.count }}</div>
+      </div>
+      <div class="rounded-xl border border-violet-100 bg-white/70 p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-violet-700">Data Center</div>
+        <div class="mt-1 text-sm font-bold text-slate-900">{{ naming_request.data_center.start_name }}</div>
+      </div>
+    </div>
+
+    <form method="post" class="mt-6 space-y-4">
+      {% csrf_token %}
+      {% if confirm_form.errors %}
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {{ confirm_form.errors }}
+        </div>
+      {% endif %}
+
+      <div class="rounded-xl border border-violet-100 bg-white/70 p-4">
+        <label class="flex cursor-pointer items-start gap-3">
+          {{ confirm_form.confirm }}
+          <span class="text-sm text-slate-700">
+            I confirm all steps are completed and the request is ready to be reviewed by admin.
+          </span>
+        </label>
+      </div>
+
+      <button type="submit"
+        class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-violet-200">
+        Submit Request to Admin
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

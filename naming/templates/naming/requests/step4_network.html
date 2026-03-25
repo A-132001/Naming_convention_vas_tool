@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Request {{ naming_request.pk }} - Step 4{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl">
+  <div class="mb-6">
+    {% include "naming/requests/_stepper.html" with naming_request=naming_request current_step=4 %}
+  </div>
+
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-6 shadow-sm backdrop-blur">
+    <h1 class="text-2xl font-bold text-slate-900">Step 4: Network Connectivity</h1>
+    <p class="mt-2 text-sm text-slate-600">Provide uplink connectivity details per server port.</p>
+
+    <form method="post" class="mt-6 space-y-5" id="net-form">
+      {% csrf_token %}
+      {{ net_formset.management_form }}
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <button type="button" id="add-net"
+          class="inline-flex items-center justify-center rounded-xl border border-violet-200 bg-white px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition duration-200 hover:border-violet-300 hover:bg-violet-50 focus:outline-none focus:ring-4 focus:ring-violet-200">
+          Add Network Row
+        </button>
+      </div>
+
+      <div class="space-y-4" id="net-rows">
+        {% for f in net_formset.forms %}
+          <div class="rounded-2xl border border-violet-100 bg-white/80 p-4 net-row">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.server.label }}</label>
+                {{ f.server }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.server_port_name.label }}</label>
+                {{ f.server_port_name }}
+                {% if f.server_port_name.errors %}
+                  <p class="mt-1 text-xs text-rose-600">{{ f.server_port_name.errors|striptags }}</p>
+                {% endif %}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.connection_type.label }}</label>
+                {{ f.connection_type }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.network_role.label }}</label>
+                {{ f.network_role }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.uplink_hostname.label }}</label>
+                {{ f.uplink_hostname }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.uplink_interface.label }}</label>
+                {{ f.uplink_interface }}
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.lacp_group_port_channel_id.label }}</label>
+                {{ f.lacp_group_port_channel_id }}
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.description.label }}</label>
+                {{ f.description }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if net_formset.non_form_errors %}
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {{ net_formset.non_form_errors }}
+        </div>
+      {% endif %}
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <button type="submit"
+          class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+          Save Step 4
+        </button>
+        {% if naming_request.step4_completed %}
+          <a href="{% url 'naming_request_final_submit' pk=naming_request.pk %}"
+             class="w-full rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm font-semibold text-violet-700 shadow-sm transition duration-200 hover:border-violet-300 hover:bg-violet-50 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+            Continue
+          </a>
+        {% else %}
+          <div class="w-full rounded-xl border border-violet-100 bg-white/60 px-4 py-3 text-center text-sm font-semibold text-violet-400 shadow-sm sm:w-auto">
+            Save Step 4 to continue
+          </div>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="hidden" id="empty-net-form">
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-4 net-row">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.server.label }}</label>
+        {{ net_formset.empty_form.server }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.server_port_name.label }}</label>
+        {{ net_formset.empty_form.server_port_name }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.connection_type.label }}</label>
+        {{ net_formset.empty_form.connection_type }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.network_role.label }}</label>
+        {{ net_formset.empty_form.network_role }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.uplink_hostname.label }}</label>
+        {{ net_formset.empty_form.uplink_hostname }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.uplink_interface.label }}</label>
+        {{ net_formset.empty_form.uplink_interface }}
+      </div>
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.lacp_group_port_channel_id.label }}</label>
+        {{ net_formset.empty_form.lacp_group_port_channel_id }}
+      </div>
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ net_formset.empty_form.description.label }}</label>
+        {{ net_formset.empty_form.description }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const addBtn = document.getElementById("add-net");
+    const rowsEl = document.getElementById("net-rows");
+    const emptyTpl = document.getElementById("empty-net-form");
+    const totalFormsInput = document.getElementById("id_net-TOTAL_FORMS");
+    if (!addBtn || !rowsEl || !emptyTpl || !totalFormsInput) return;
+
+    addBtn.addEventListener("click", function () {
+      const current = parseInt(totalFormsInput.value || "0", 10);
+      const newIndex = current;
+      const tplHtml = emptyTpl.innerHTML.replaceAll("__prefix__", newIndex);
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = tplHtml;
+      rowsEl.appendChild(wrapper.firstElementChild);
+      totalFormsInput.value = String(current + 1);
+    });
+  })();
+</script>
+{% endblock %}
+

@@ -1,0 +1,18 @@
+{% comment %}
+  Reusable workflow stepper.
+  Expects:
+    - naming_request
+    - current_step (int 1..4)
+{% endcomment %}
+
+{% with s1=naming_request.step1_completed s2=naming_request.step2_completed s3=naming_request.step3_completed s4=naming_request.step4_completed %}
+<div class="mb-6 rounded-2xl border border-violet-100 bg-white/70 p-4 shadow-sm backdrop-blur">
+  <ol class="flex flex-wrap items-center gap-2 sm:gap-3">
+    {% include "naming/requests/_stepper_item.html" with step=1 label="Step 1" done=s1 current_step=current_step %}
+    {% include "naming/requests/_stepper_item.html" with step=2 label="Step 2" done=s2 current_step=current_step %}
+    {% include "naming/requests/_stepper_item.html" with step=3 label="Step 3" done=s3 current_step=current_step %}
+    {% include "naming/requests/_stepper_item.html" with step=4 label="Step 4" done=s4 current_step=current_step %}
+  </ol>
+</div>
+{% endwith %}
+

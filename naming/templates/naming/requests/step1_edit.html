@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Request {{ naming_request.pk }} - Step 1{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl">
+  <div class="mb-6">
+    {% include "naming/requests/_stepper.html" with naming_request=naming_request current_step=1 %}
+  </div>
+
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-6 shadow-sm backdrop-blur">
+    <h1 class="text-2xl font-bold text-slate-900">Step 1: Management IPs</h1>
+    <p class="mt-2 text-sm text-slate-600">Update IPs for the reserved sequential servers.</p>
+
+    <form method="post" class="mt-6 space-y-4">
+      {% csrf_token %}
+      {{ server_formset.management_form }}
+
+      <div class="space-y-3">
+        {% for f in server_formset.forms %}
+          <div class="rounded-xl border border-violet-100 bg-white/80 p-4">
+            {{ f.server_number }}
+            {{ f.server_name }}
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div class="text-xs font-semibold uppercase tracking-wider text-violet-700">Server</div>
+                <div class="mt-1 text-sm font-bold text-slate-900">{{ f.server_name.value }}</div>
+              </div>
+              <div class="w-full sm:w-64">
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.management_ip.label }}</label>
+                {{ f.management_ip }}
+                {% if f.management_ip.errors %}
+                  <p class="mt-1 text-xs text-rose-600">{{ f.management_ip.errors|striptags }}</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <button type="submit"
+          class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+          Save Step 1
+        </button>
+        <a href="{% url 'naming_request_step2' pk=naming_request.pk %}"
+           class="w-full rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm font-semibold text-violet-700 shadow-sm transition duration-200 hover:border-violet-300 hover:bg-violet-50 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+          Continue
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

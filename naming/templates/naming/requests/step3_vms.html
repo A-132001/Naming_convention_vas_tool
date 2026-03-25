@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Request {{ naming_request.pk }} - Step 3{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl">
+  <div class="mb-6">
+    {% include "naming/requests/_stepper.html" with naming_request=naming_request current_step=3 %}
+  </div>
+
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-6 shadow-sm backdrop-blur">
+    <h1 class="text-2xl font-bold text-slate-900">Step 3: Logical VMs</h1>
+    <p class="mt-2 text-sm text-slate-600">Add as many VMs as needed. You can create multiple VMs per hypervisor.</p>
+
+    <form method="post" class="mt-6 space-y-5" id="vm-form">
+      {% csrf_token %}
+      {{ vm_formset.management_form }}
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <button type="button" id="add-vm"
+          class="inline-flex items-center justify-center rounded-xl border border-violet-200 bg-white px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition duration-200 hover:border-violet-300 hover:bg-violet-50 focus:outline-none focus:ring-4 focus:ring-violet-200">
+          Add VM Row
+        </button>
+      </div>
+
+      <div class="space-y-4" id="vm-rows">
+        {% for f in vm_formset.forms %}
+          <div class="rounded-2xl border border-violet-100 bg-white/80 p-4 vm-row">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.hypervisor.label }}</label>
+                {{ f.hypervisor }}
+                {% if f.hypervisor.errors %}
+                  <p class="mt-1 text-xs text-rose-600">{{ f.hypervisor.errors|striptags }}</p>
+                {% endif %}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.vm_name.label }}</label>
+                {{ f.vm_name }}
+                {% if f.vm_name.errors %}
+                  <p class="mt-1 text-xs text-rose-600">{{ f.vm_name.errors|striptags }}</p>
+                {% endif %}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.management_ip.label }}</label>
+                {{ f.management_ip }}
+                {% if f.management_ip.errors %}
+                  <p class="mt-1 text-xs text-rose-600">{{ f.management_ip.errors|striptags }}</p>
+                {% endif %}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.os.label }}</label>
+                {{ f.os }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.application_name.label }}</label>
+                {{ f.application_name }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.sub_function_other.label }}</label>
+                {{ f.sub_function_other }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.software_vendor.label }}</label>
+                {{ f.software_vendor }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.activation_status.label }}</label>
+                {{ f.activation_status }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.license_subscription_status.label }}</label>
+                {{ f.license_subscription_status }}
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.license_expiration_date.label }}</label>
+                {{ f.license_expiration_date }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.vcpu_worker.label }}</label>
+                {{ f.vcpu_worker }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.vramsize_gb.label }}</label>
+                {{ f.vramsize_gb }}
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-700">{{ f.storage_size_gb.label }}</label>
+                {{ f.storage_size_gb }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if vm_formset.non_form_errors %}
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {{ vm_formset.non_form_errors }}
+        </div>
+      {% endif %}
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <button type="submit"
+          class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+          Save Step 3
+        </button>
+        <a href="{% url 'naming_request_step4' pk=naming_request.pk %}"
+           class="w-full rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm font-semibold text-violet-700 shadow-sm transition duration-200 hover:border-violet-300 hover:bg-violet-50 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+          Continue
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="hidden" id="empty-vm-form">
+  {# Clone target: Django formset uses __prefix__ placeholders #}
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-4 vm-row">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.hypervisor.label }}</label>
+        {{ vm_formset.empty_form.hypervisor }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.vm_name.label }}</label>
+        {{ vm_formset.empty_form.vm_name }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.management_ip.label }}</label>
+        {{ vm_formset.empty_form.management_ip }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.os.label }}</label>
+        {{ vm_formset.empty_form.os }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.application_name.label }}</label>
+        {{ vm_formset.empty_form.application_name }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.sub_function_other.label }}</label>
+        {{ vm_formset.empty_form.sub_function_other }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.software_vendor.label }}</label>
+        {{ vm_formset.empty_form.software_vendor }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.activation_status.label }}</label>
+        {{ vm_formset.empty_form.activation_status }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.license_subscription_status.label }}</label>
+        {{ vm_formset.empty_form.license_subscription_status }}
+      </div>
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.license_expiration_date.label }}</label>
+        {{ vm_formset.empty_form.license_expiration_date }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.vcpu_worker.label }}</label>
+        {{ vm_formset.empty_form.vcpu_worker }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.vramsize_gb.label }}</label>
+        {{ vm_formset.empty_form.vramsize_gb }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">{{ vm_formset.empty_form.storage_size_gb.label }}</label>
+        {{ vm_formset.empty_form.storage_size_gb }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const addBtn = document.getElementById("add-vm");
+    const rowsEl = document.getElementById("vm-rows");
+    const emptyTpl = document.getElementById("empty-vm-form");
+    const totalFormsInput = document.getElementById("id_vm-TOTAL_FORMS");
+    if (!addBtn || !rowsEl || !emptyTpl || !totalFormsInput) return;
+
+    addBtn.addEventListener("click", function () {
+      const current = parseInt(totalFormsInput.value || "0", 10);
+      const newIndex = current;
+      const tplHtml = emptyTpl.innerHTML.replaceAll("__prefix__", newIndex);
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = tplHtml;
+      rowsEl.appendChild(wrapper.firstElementChild);
+      totalFormsInput.value = String(current + 1);
+    });
+  })();
+</script>
+{% endblock %}
+

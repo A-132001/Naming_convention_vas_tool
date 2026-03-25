@@ -1,0 +1,33 @@
+{% comment %}
+  Expects:
+    - step (int)
+    - label
+    - done (bool)
+    - current_step (int)
+{% endcomment %}
+
+{% if step == current_step %}
+  <li class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-2 text-white shadow-sm">
+    <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/15 text-xs font-bold">
+      {{ step }}
+    </span>
+    <span class="text-xs sm:text-sm font-semibold">{{ label }}</span>
+  </li>
+{% else %}
+  {% if done %}
+    <li class="flex items-center gap-2 rounded-xl border border-violet-100 bg-white px-3 py-2 text-violet-700 shadow-sm">
+      <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-xs font-bold">
+        {{ step }}
+      </span>
+      <span class="text-xs sm:text-sm font-semibold">{{ label }}</span>
+    </li>
+  {% else %}
+    <li class="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2 text-slate-400">
+      <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold">
+        {{ step }}
+      </span>
+      <span class="text-xs sm:text-sm font-semibold">{{ label }}</span>
+    </li>
+  {% endif %}
+{% endif %}
+
