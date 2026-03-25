@@ -3,7 +3,7 @@
 {% block title %}Request {{ naming_request.pk }} - Step 1{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-3xl">
+<div class="mx-auto max-w-5xl">
   <div class="mb-6">
     {% include "naming/requests/_stepper.html" with naming_request=naming_request current_step=1 %}
   </div>

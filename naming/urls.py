@@ -14,6 +14,12 @@ from naming.views import (
     NamingRequestStep3View,
     NamingRequestStep4View,
 )
+from naming.views_admin import (
+    AdminDataCenterCreateView,
+    AdminDataCenterDeleteView,
+    AdminDataCenterListView,
+    AdminDataCenterUpdateView,
+)
 
 
 urlpatterns = [
@@ -33,5 +39,11 @@ urlpatterns = [
     path("admin/<int:pk>/step2/", AdminNamingRequestStep2View.as_view(), name="admin_naming_request_step2"),
     path("admin/<int:pk>/step3/", AdminNamingRequestStep3View.as_view(), name="admin_naming_request_step3"),
     path("admin/<int:pk>/step4/", AdminNamingRequestStep4View.as_view(), name="admin_naming_request_step4"),
+
+    # Admin - Data Centers
+    path("admin/datacenters/", AdminDataCenterListView.as_view(), name="admin_datacenters_list"),
+    path("admin/datacenters/new/", AdminDataCenterCreateView.as_view(), name="admin_datacenters_create"),
+    path("admin/datacenters/<int:pk>/edit/", AdminDataCenterUpdateView.as_view(), name="admin_datacenters_edit"),
+    path("admin/datacenters/<int:pk>/delete/", AdminDataCenterDeleteView.as_view(), name="admin_datacenters_delete"),
 ]
 

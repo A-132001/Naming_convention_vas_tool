@@ -23,6 +23,7 @@ from naming.models import (
     HypervisorOS,
     NetworkConfiguration,
     NamingRequest,
+    StorageConfiguration,
     VirtualMachine,
 )
 from naming.services.approval import approve_naming_request, reject_naming_request
@@ -421,7 +422,178 @@ class AdminNamingRequestDetailView(LoginRequiredMixin, StaffRequiredMixin, View)
 
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
         naming_request = get_object_or_404(NamingRequest, pk=pk, status=NamingRequest.Status.PENDING)
-        return render(request, self.template_name, {"naming_request": naming_request})
+        servers = naming_request.server_allocations.select_related("data_center").order_by("server_number")
+        servers = servers.prefetch_related(
+            "network_configurations",
+            "storage_configurations",
+            "hypervisor_os__virtual_machines",
+        )
+
+        physical_headers = [
+            "Server Name",
+            "Management IP",
+            "Ports",
+            "Firewall",
+            "Server Type",
+            "HW Vendor",
+            "HW Model",
+            "Serial Number",
+            "Firmware / BIOS Version",
+            "Management System Name",
+            "Domain",
+            "Function",
+            "Service",
+            "Activation Status",
+            "Activation Date",
+            "Exchange Name",
+            "Hall Name",
+            "Rack No",
+            "Rack Side",
+            "Server Position",
+            "CPU count - Sockets",
+            "Cores per CPU",
+            "RAM Size (GB)",
+            "Storage Size (GB)",
+            "PO Number",
+            "Support End Date",
+        ]
+
+        hypervisor_headers = [
+            "Server Name",
+            "HV/OS Name",
+            "Hypervisor Type / OS Type",
+            "Management IP",
+            "Ports",
+            "Version / Build Number",
+            "License Key / Status",
+            "Expiration date",
+        ]
+
+        vm_headers = [
+            "Hypervisor Name",
+            "VM Name",
+            "Management IP",
+            "Sub Function/Other",
+            "Software Vendor",
+            "OS",
+            "Activation Status",
+            "License / Subscription Status",
+            "License Expiration date",
+            "Application Name",
+            "vCPU-worker",
+            "vRAM Size (GB)",
+            "Storage size (GB)",
+        ]
+
+        network_headers = [
+            "Server Name",
+            "Server Port Name",
+            "Connection Type",
+            "Network Role",
+            "Uplink Hostname",
+            "Uplink Interface",
+            "Description",
+            "LACP Group / Port-Channel ID",
+        ]
+
+        storage_headers = [
+            "Server Name",
+            "Disk Type",
+            "Disk Slot No",
+            "Disk Size (GB)",
+            "RAID Level / Configuration",
+            "Usage Purpose",
+        ]
+
+        physical_rows: list[list[str]] = []
+        hypervisor_rows: list[list[str]] = []
+        vm_rows: list[list[str]] = []
+        network_rows: list[list[str]] = []
+        storage_rows: list[list[str]] = []
+
+        for server in servers:
+            hv = getattr(server, "hypervisor_os", None)
+            server_networks = list(server.network_configurations.all())
+            server_storages = list(server.storage_configurations.all())
+
+            physical_row_map = {h: "" for h in physical_headers}
+            physical_row_map["Server Name"] = server.server_name
+            physical_row_map["Management IP"] = server.management_ip or ""
+            physical_row_map["Ports"] = str(hv.ports) if hv and hv.ports is not None else ""
+            physical_rows.append([physical_row_map[h] for h in physical_headers])
+
+            if hv:
+                hypervisor_row_map = {h: "" for h in hypervisor_headers}
+                hypervisor_row_map["Server Name"] = server.server_name
+                hypervisor_row_map["HV/OS Name"] = hv.hv_os_name
+                hypervisor_row_map["Hypervisor Type / OS Type"] = hv.hypervisor_type_os_type
+                hypervisor_row_map["Management IP"] = hv.management_ip or ""
+                hypervisor_row_map["Ports"] = str(hv.ports) if hv.ports is not None else ""
+                hypervisor_row_map["Version / Build Number"] = hv.version_build_number
+                hypervisor_row_map["License Key / Status"] = hv.license_key_status or ""
+                hypervisor_row_map["Expiration date"] = hv.expiration_date or ""
+                hypervisor_rows.append([hypervisor_row_map[h] for h in hypervisor_headers])
+
+                for vm in hv.virtual_machines.all():
+                    vm_row_map = {h: "" for h in vm_headers}
+                    vm_row_map["Hypervisor Name"] = hv.hv_os_name
+                    vm_row_map["VM Name"] = vm.vm_name
+                    vm_row_map["Management IP"] = vm.management_ip or ""
+                    vm_row_map["Sub Function/Other"] = vm.sub_function_other or ""
+                    vm_row_map["Software Vendor"] = vm.software_vendor or ""
+                    vm_row_map["OS"] = vm.os or ""
+                    vm_row_map["Activation Status"] = vm.activation_status or ""
+                    vm_row_map["License / Subscription Status"] = vm.license_subscription_status or ""
+                    vm_row_map["License Expiration date"] = vm.license_expiration_date or ""
+                    vm_row_map["Application Name"] = vm.application_name or ""
+                    vm_row_map["vCPU-worker"] = vm.vcpu_worker or ""
+                    vm_row_map["vRAM Size (GB)"] = str(vm.vramsize_gb) if vm.vramsize_gb is not None else ""
+                    vm_row_map["Storage size (GB)"] = str(vm.storage_size_gb) if vm.storage_size_gb is not None else ""
+                    vm_rows.append([vm_row_map[h] for h in vm_headers])
+
+            for net in server_networks:
+                net_row_map = {h: "" for h in network_headers}
+                net_row_map["Server Name"] = server.server_name
+                net_row_map["Server Port Name"] = net.server_port_name
+                net_row_map["Connection Type"] = net.connection_type
+                net_row_map["Network Role"] = net.network_role
+                net_row_map["Uplink Hostname"] = net.uplink_hostname or ""
+                net_row_map["Uplink Interface"] = net.uplink_interface or ""
+                net_row_map["Description"] = net.description or ""
+                net_row_map["LACP Group / Port-Channel ID"] = net.lacp_group_port_channel_id or ""
+                network_rows.append([net_row_map[h] for h in network_headers])
+
+            for st in server_storages:
+                st_row_map = {h: "" for h in storage_headers}
+                st_row_map["Server Name"] = server.server_name
+                st_row_map["Disk Type"] = st.disk_type or ""
+                st_row_map["Disk Slot No"] = str(st.disk_slot_no) if st.disk_slot_no is not None else ""
+                st_row_map["Disk Size (GB)"] = str(st.disk_size_gb) if st.disk_size_gb is not None else ""
+                st_row_map["RAID Level / Configuration"] = st.raid_level_configuration or ""
+                st_row_map["Usage Purpose"] = st.usage_purpose or ""
+                storage_rows.append([st_row_map[h] for h in storage_headers])
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "naming_request": naming_request,
+                "physical_headers": physical_headers,
+                "physical_rows": physical_rows,
+                "hypervisor_headers": hypervisor_headers,
+                "hypervisor_rows": hypervisor_rows,
+                "vm_headers": vm_headers,
+                "vm_rows": vm_rows,
+                "network_headers": network_headers,
+                "network_rows": network_rows,
+                "storage_headers": storage_headers,
+                "storage_rows": storage_rows,
+                "step1_completed": naming_request.step1_completed,
+                "step2_completed": naming_request.step2_completed,
+                "step3_completed": naming_request.step3_completed,
+                "step4_completed": naming_request.step4_completed,
+            },
+        )
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
         naming_request = get_object_or_404(NamingRequest, pk=pk, status=NamingRequest.Status.PENDING)

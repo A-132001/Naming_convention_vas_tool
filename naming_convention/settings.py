@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'naming',
-    'inquiry',
 ]
 
 MIDDLEWARE = [

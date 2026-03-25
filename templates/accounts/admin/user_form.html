@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if is_edit %}Edit User{% else %}Create User{% endif %} | Naming Convention
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl">
+  <div class="mb-6 rounded-2xl border border-violet-100 bg-white/80 p-6 shadow-sm backdrop-blur">
+    <div class="text-xs font-semibold uppercase tracking-wider text-violet-700">
+      Admin - User Management
+    </div>
+    <h1 class="mt-2 text-2xl font-bold text-slate-900">
+      {% if is_edit %}Edit{% else %}Create{% endif %} User
+    </h1>
+    <p class="mt-2 text-sm text-slate-600">Manage user credentials and access flags.</p>
+  </div>
+
+  <div class="rounded-2xl border border-violet-100 bg-white/80 p-6 shadow-sm">
+    {% if form.non_field_errors %}
+      <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {% if form.errors %}
+      <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.username.label }}</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <p class="mt-1 text-xs text-rose-600">{{ form.username.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <p class="mt-1 text-xs text-rose-600">{{ form.email.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.first_name.label }}</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ form.first_name.errors|striptags }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.last_name.label }}</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ form.last_name.errors|striptags }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if form.password1 %}
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.password1.label }}</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ form.password1.errors|striptags }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.password2.label }}</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ form.password2.errors|striptags }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="flex items-center gap-3 rounded-xl border border-violet-100 bg-white/70 p-4">
+          {{ form.is_staff }}
+          <div>
+            <div class="text-sm font-semibold text-slate-700">Staff access</div>
+            <div class="text-xs text-slate-500">Can access admin review & user management.</div>
+          </div>
+        </div>
+        {% if form.is_staff.errors %}
+          <div class="mt-1 text-xs text-rose-600">{{ form.is_staff.errors|striptags }}</div>
+        {% endif %}
+
+        <div class="flex items-center gap-3 rounded-xl border border-violet-100 bg-white/70 p-4">
+          {{ form.is_active }}
+          <div>
+            <div class="text-sm font-semibold text-slate-700">Active</div>
+            <div class="text-xs text-slate-500">If disabled, user cannot log in.</div>
+          </div>
+        </div>
+        {% if form.is_active.errors %}
+          <div class="mt-1 text-xs text-rose-600">{{ form.is_active.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <button type="submit"
+          class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition duration-200 hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:w-auto">
+          {% if is_edit %}Save Changes{% else %}Create User{% endif %}
+        </button>
+        <a href="{% url 'admin_users_list' %}"
+           class="w-full rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm font-semibold text-violet-700 shadow-sm transition duration-200 hover:border-violet-300 hover:bg-violet-50 focus:outline-none focus:ring-4 focus:ring-violet-200 text-center sm:w-auto">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
